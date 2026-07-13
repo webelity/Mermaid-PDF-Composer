@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Convert local Markdown files with Mermaid diagram support to beautiful, professional PDF documents easily.">
+    <title>Markdown to PDF Converter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Figtree:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo-area">
+                <svg class="app-logo" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <div class="logo-text">
+                    <h1>MD to PDF</h1>
+                    <span class="subtitle">Mermaid compiler UI</span>
+                </div>
+            </div>
+            <div class="status-indicator" id="connection-status">
+                <span class="status-dot"></span> Local Server Connected
+            </div>
+        </header>
+
+        <main class="workspace">
+            <div class="card file-section">
+                <h2 class="section-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                    File Selection
+                </h2>
+                
+                <div class="file-drop-area" id="file-select-btn">
+                    <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="upload-text">
+                        <p class="primary-text">Click to choose a Markdown file</p>
+                        <p class="secondary-text">Triggers native Windows file chooser dialog</p>
+                    </div>
+                </div>
+
+                <div class="selected-file-details hidden" id="file-details">
+                    <div class="file-info">
+                        <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        <div class="file-meta">
+                            <span class="file-name" id="selected-file-name">filename.md</span>
+                            <span class="file-path" id="selected-file-path">C:\Path\To\file.md</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary-icon" id="change-file-btn" title="Choose another file">
+                        Change File
+                    </button>
+                </div>
+            </div>
+
+            <div class="card params-section">
+                <h2 class="section-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    PDF Configuration
+                </h2>
+
+                <form class="config-form" id="config-form" onsubmit="return false;">
+                    <div class="form-group full-width">
+                        <label for="doc-title">Document Title (Optional)</label>
+                        <input type="text" id="doc-title" placeholder="Auto-detects from filename if empty" autocomplete="off">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="doc-output">Output PDF Location</label>
+                        <input type="text" id="doc-output" placeholder="Same directory as source if empty" autocomplete="off">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="page-size">Page Size</label>
+                            <div class="select-wrapper">
+                                <select id="page-size">
+                                    <option value="a4" selected>A4</option>
+                                    <option value="letter">Letter</option>
+                                    <option value="a3">A3</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="orientation">Orientation</label>
+                            <div class="select-wrapper">
+                                <select id="orientation">
+                                    <option value="portrait" selected>Portrait</option>
+                                    <option value="landscape">Landscape</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="switches-grid">
+                        <label class="switch-container">
+                            <input type="checkbox" id="no-page-numbers">
+                            <span class="switch-slider"></span>
+                            <span class="switch-label">Disable Page Numbers</span>
+                        </label>
+
+                        <label class="switch-container">
+                            <input type="checkbox" id="no-mermaid">
+                            <span class="switch-slider"></span>
+                            <span class="switch-label">Disable Mermaid rendering</span>
+                        </label>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="mermaid-settings-card" id="mermaid-settings-group">
+                        <h3 class="subsection-title">Mermaid Rendering Settings</h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="mermaid-theme">Diagram Theme</label>
+                                <div class="select-wrapper">
+                                    <select id="mermaid-theme">
+                                        <option value="default" selected>Default</option>
+                                        <option value="neutral">Neutral</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="forest">Forest</option>
+                                        <option value="base">Base (CSS Styled)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="mermaid-scale">Diagram Resolution Scale: <span id="scale-val">2x</span></label>
+                                <div class="slider-container">
+                                    <input type="range" id="mermaid-scale" min="1" max="4" value="2" step="1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <h3 class="subsection-title">Engine Options</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="engine">PDF Engine</label>
+                            <div class="select-wrapper">
+                                <select id="engine">
+                                    <option value="html" selected>Chromium HTML (Best quality & emojis)</option>
+                                    <option value="reportlab">ReportLab (Legacy compiler)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emoji-strategy">Emoji Strategy</label>
+                            <div class="select-wrapper">
+                                <select id="emoji-strategy">
+                                    <option value="auto" selected>Auto</option>
+                                    <option value="pilmoji">Pilmoji (Requires Package)</option>
+                                    <option value="remove">Remove Emojis</option>
+                                    <option value="keep">Keep Raw Symbols</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="font-option">System Font</label>
+                        <input type="text" id="font-option" value="arial" placeholder="e.g. arial, helvetica, or absolute path to .ttf font">
+                        <span class="help-text">Arial is recommended for default Windows document compilation.</span>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <footer class="action-footer">
+            <div class="action-status-box hidden" id="status-box">
+                <div class="status-content">
+                    <span class="status-icon-container" id="status-icon-holder">
+                    </span>
+                    <div class="status-details">
+                        <h4 id="status-title">Converting...</h4>
+                        <p id="status-message">Executing md2pdf compilation on system python.</p>
+                    </div>
+                </div>
+                <div class="action-buttons-group hidden" id="success-actions">
+                    <button class="btn btn-primary btn-sm" id="btn-open-pdf">Open PDF</button>
+                    <button class="btn btn-secondary btn-sm" id="btn-open-folder">Show in Explorer</button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-large" id="btn-compile" disabled>
+                <svg class="btn-spinner hidden" id="btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" width="20" height="20">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span id="btn-text">Select a file to compile</span>
+            </button>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
