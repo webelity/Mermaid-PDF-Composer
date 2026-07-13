@@ -4,6 +4,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Framework](https://img.shields.io/badge/framework-Flask-lightgrey)](https://flask.palletsprojects.com/)
 
+![Mermaid-PDF-Composer Banner](mermaid-pdf-composer.jpg)
+
 Mermaid-PDF-Composer is a local web utility that allows you to convert Markdown files containing Mermaid diagrams into clean, print-ready PDF documents. It provides a simple, styled interface where you can configure document layouts and compile them directly on your local machine.
 
 Rather than relying on browser file uploads, the application opens a native system file selector. This allows it to read files directly from your workspace and output compiled PDFs locally, avoiding sandbox limitations.
